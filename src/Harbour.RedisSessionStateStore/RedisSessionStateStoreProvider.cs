@@ -64,6 +64,7 @@ namespace Harbour.RedisSessionStateStore
         private IRedisClientsManager clientManager;
         private bool manageClientManagerLifetime;
         private string name;
+        private static uint sessionTimeoutMinutes = 60;//Default Minutes of Session Timout.
 
         /// <summary>
         /// Gets the client manager for the provider.
@@ -254,7 +255,7 @@ namespace Harbour.RedisSessionStateStore
             {
                 UseTransaction(client, transaction =>
                 {
-                    transaction.QueueCommand(c => c.ExpireEntryIn(key, TimeSpan.FromMinutes(context.Session.Timeout)));
+                    transaction.QueueCommand(c => c.ExpireEntryIn(key, TimeSpan.FromMinutes(context.Session == null ? sessionTimeOutMinutes : context.Session.Timeout)));//Use Default Minutes of Session Timeout While context.Session IS NULL.
                 });
             };
         }
@@ -361,7 +362,7 @@ namespace Harbour.RedisSessionStateStore
                 UpdateSessionStateIfLocked(client, id, (int)lockId, state =>
                 {
                     state.Locked = false;
-                    state.Timeout = context.Session.Timeout;
+                    state.Timeout = context.Session == null ? sessionTimeOutMinutes : context.Session.Timeout;//Use Default Minutes of Session Timeout While context.Session IS NULL.
                 });
             }
         }
