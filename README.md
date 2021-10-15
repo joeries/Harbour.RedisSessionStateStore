@@ -68,6 +68,10 @@ protected void Application_End()
 Changelog
 ---------
 
+### v1.4.1
+- Use the `sessionTimeoutMiutes` instead of the `HttpContext.Session.Timeout`
+  while `HttpContext.Session` IS NULL.
+
 ### v1.4.0
 - Use the `HttpContext.Session.Timeout` instead of the timeout from the `web.config`
   so that the request can customize the session's timeout.
