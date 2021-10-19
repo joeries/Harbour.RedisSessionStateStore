@@ -1,5 +1,4 @@
-This fork is based on Harbour.RedisSessionStateStore 1.4.0,here is the change:
-Use the `sessionTimeoutMiutes` instead of the `HttpContext.Session.Timeout` while `HttpContext.Session` IS NULL.
+This fork is based on Harbour.RedisSessionStateStore 1.4.0,here is the change:Use the `sessionTimeoutMiutes` instead of the `HttpContext.Session.Timeout` while `HttpContext.Session` IS NULL.Online Nuget package name is Joeries.Harbour.RedisSessionStateStore.
 
 
 Harbour.RedisSessionStateStore
