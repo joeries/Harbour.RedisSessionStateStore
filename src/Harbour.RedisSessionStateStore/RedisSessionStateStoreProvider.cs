@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -64,7 +64,7 @@ namespace Harbour.RedisSessionStateStore
         private IRedisClientsManager clientManager;
         private bool manageClientManagerLifetime;
         private string name;
-        private static uint sessionTimeoutMinutes = 60;//Default Minutes of Session Timout.
+        private static int sessionTimeoutMinutes = 60;//Default Minutes of Session Timout.
 
         /// <summary>
         /// Gets the client manager for the provider.
@@ -73,12 +73,24 @@ namespace Harbour.RedisSessionStateStore
 
         internal RedisSessionStateStoreProvider(Func<HttpContext, HttpStaticObjectsCollection> staticObjectsGetter)
         {
-            this.staticObjectsGetter = staticObjectsGetter;
+            this.staticObjectsGetter = staticObjectsGetter; 
+            
+            var sessionConfig = (SessionStateSection)WebConfigurationManager.GetSection("system.web/sessionState");
+            if (null != sessionConfig)
+            {
+                sessionTimeoutMinutes = (int)sessionConfig.Timeout.TotalMinutes;
+            }
         }
 
         public RedisSessionStateStoreProvider()
         {
             staticObjectsGetter = ctx => SessionStateUtility.GetSessionStaticObjects(ctx);
+
+            var sessionConfig = (SessionStateSection)WebConfigurationManager.GetSection("system.web/sessionState");
+            if (null != sessionConfig)
+            {
+                sessionTimeoutMinutes = (int)sessionConfig.Timeout.TotalMinutes;
+            }
         }
 
         /// <summary>
@@ -255,7 +267,7 @@ namespace Harbour.RedisSessionStateStore
             {
                 UseTransaction(client, transaction =>
                 {
-                    transaction.QueueCommand(c => c.ExpireEntryIn(key, TimeSpan.FromMinutes(context.Session == null ? sessionTimeOutMinutes : context.Session.Timeout)));//Use Default Minutes of Session Timeout While context.Session IS NULL.
+                    transaction.QueueCommand(c => c.ExpireEntryIn(key, TimeSpan.FromMinutes(context?.Session == null ? sessionTimeOutMinutes : context.Session.Timeout)));//Use Default Minutes of Session Timeout While context.Session IS NULL.
                 });
             };
         }
@@ -362,7 +374,7 @@ namespace Harbour.RedisSessionStateStore
                 UpdateSessionStateIfLocked(client, id, (int)lockId, state =>
                 {
                     state.Locked = false;
-                    state.Timeout = context.Session == null ? sessionTimeOutMinutes : context.Session.Timeout;//Use Default Minutes of Session Timeout While context.Session IS NULL.
+                    state.Timeout = context?.Session == null ? sessionTimeOutMinutes : context.Session.Timeout;//Use Default Minutes of Session Timeout While context.Session IS NULL.
                 });
             }
         }
